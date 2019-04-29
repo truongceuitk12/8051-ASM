@@ -1,0 +1,114 @@
+BL51 BANKED LINKER/LOCATER V6.22.2.0                                                    04/19/2019  11:32:24  PAGE 1
+
+
+BL51 BANKED LINKER/LOCATER V6.22.2.0, INVOKED BY:
+C:\KEIL_V5\C51\BIN\BL51.EXE .\Objects\main.obj TO .\Objects\timer PRINT (.\Listings\timer.m51) RAMSIZE (256)
+
+
+INPUT MODULES INCLUDED:
+  .\Objects\main.obj (MAIN)
+
+
+LINK MAP OF MODULE:  .\Objects\timer (MAIN)
+
+
+            TYPE    BASE      LENGTH    RELOCATION   SEGMENT NAME
+            -----------------------------------------------------
+
+            * * * * * * *   D A T A   M E M O R Y   * * * * * * *
+            REG     0000H     0008H     ABSOLUTE     "REG BANK 0"
+
+            * * * * * * *   C O D E   M E M O R Y   * * * * * * *
+            CODE    0000H     0068H     ABSOLUTE     
+
+
+
+SYMBOL TABLE OF MODULE:  .\Objects\timer (MAIN)
+
+  VALUE           TYPE          NAME
+  ----------------------------------
+
+  -------         MODULE        MAIN
+  C:0046H         SYMBOL        AGAIN
+  B:00B0H.4       SYMBOL        BUTTON
+  C:0036H         SYMBOL        DELAY
+  C:0016H         SYMBOL        DELAYBITLOW
+  C:0032H         SYMBOL        L1
+  C:0018H         SYMBOL        LOOP1
+  C:002BH         SYMBOL        LOOP2
+  C:0003H         SYMBOL        MAIN
+  D:0090H         SYMBOL        P1
+  D:00B0H         SYMBOL        P3
+  D:0099H         SYMBOL        SBUF
+  D:0098H         SYMBOL        SCON
+  C:0027H         SYMBOL        SETBUZZER
+  B:0088H.5       SYMBOL        TF0
+  D:008DH         SYMBOL        TH1
+  B:0098H.1       SYMBOL        TI
+  D:008AH         SYMBOL        TL0
+  D:0089H         SYMBOL        TMOD
+  B:0088H.4       SYMBOL        TR0
+  C:0060H         SYMBOL        TRUYEN
+  C:003DH         SYMBOL        UART
+  C:0000H         LINE#         3
+  C:0003H         LINE#         6
+  C:0006H         LINE#         7
+  C:0008H         LINE#         8
+  C:000AH         LINE#         9
+  C:000DH         LINE#         10
+  C:000FH         LINE#         11
+  C:0012H         LINE#         12
+  C:0014H         LINE#         13
+BL51 BANKED LINKER/LOCATER V6.22.2.0                                                  04/19/2019  11:32:24  PAGE 2
+
+
+  C:0016H         LINE#         16
+  C:0018H         LINE#         18
+  C:001BH         LINE#         19
+  C:001DH         LINE#         20
+  C:0020H         LINE#         21
+  C:0022H         LINE#         22
+  C:0024H         LINE#         23
+  C:0026H         LINE#         24
+  C:0027H         LINE#         27
+  C:0029H         LINE#         28
+  C:002BH         LINE#         31
+  C:002CH         LINE#         32
+  C:002DH         LINE#         33
+  C:002FH         LINE#         34
+  C:0031H         LINE#         35
+  C:0032H         LINE#         39
+  C:0034H         LINE#         40
+  C:0036H         LINE#         42
+  C:0037H         LINE#         43
+  C:0038H         LINE#         44
+  C:003AH         LINE#         45
+  C:003CH         LINE#         46
+  C:003DH         LINE#         50
+  C:0040H         LINE#         51
+  C:0043H         LINE#         52
+  C:0046H         LINE#         57
+  C:0048H         LINE#         58
+  C:004AH         LINE#         59
+  C:004CH         LINE#         60
+  C:004EH         LINE#         61
+  C:0050H         LINE#         62
+  C:0052H         LINE#         63
+  C:0054H         LINE#         64
+  C:0056H         LINE#         65
+  C:0058H         LINE#         66
+  C:005AH         LINE#         67
+  C:005CH         LINE#         68
+  C:005EH         LINE#         69
+  C:0060H         LINE#         71
+  C:0062H         LINE#         72
+  C:0065H         LINE#         73
+  C:0067H         LINE#         74
+  -------         ENDMOD        MAIN
+
+******************************************************************************
+* RESTRICTED VERSION WITH 0800H BYTE CODE SIZE LIMIT; USED: 0068H BYTE ( 5%) *
+******************************************************************************
+
+Program Size: data=8.0 xdata=0 code=104
+LINK/LOCATE RUN COMPLETE.  0 WARNING(S),  0 ERROR(S)

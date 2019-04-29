@@ -1,0 +1,128 @@
+A51 MACRO ASSEMBLER  MAIN                                                                 04/19/2019 11:32:24 PAGE     1
+
+
+MACRO ASSEMBLER A51 V8.2.7.0
+OBJECT MODULE PLACED IN .\Objects\main.obj
+ASSEMBLER INVOKED BY: C:\Keil_v5\C51\BIN\A51.EXE main.a51 SET(SMALL) DEBUG PRINT(.\Listings\main.lst) OBJECT(.\Objects\m
+                      ain.obj) EP
+
+LOC  OBJ            LINE     SOURCE
+
+0000                   1     ORG 0000H
+  00B4                 2     BUTTON BIT P3.4
+0000 020003            3     LJMP MAIN
+0003                   4     MAIN:
+                       5             
+0003 758903            6             MOV TMOD,#03       ; TIMER 0 MOD 3
+0006 1127              7             CALL SETBUZZER     ;BAT COI 500HZ TRONG 189MS
+0008 1116              8             CALL DELAYBITLOW   ;GOI TIMER
+000A 20B4F6            9             JB BUTTON,MAIN  ; KIEM TRA NUT NHAN 
+000D 1136             10             CALL DELAY      ;CHONG DOI
+000F 30B4FD           11             JNB BUTTON,$     
+0012 113D             12             CALL UART
+0014 80ED             13             JMP MAIN
+                      14     ;********************************************
+0016                  15     DELAYBITLOW:           ;DELAY 740*256US ~ 189 MS
+0016 79E4             16             MOV R1,#740
+*** _________________________________________^
+*** WARNING #A52 IN 16 (main.a51, LINE 16): VALUE HAS BEEN TRUNCATED TO 8 BITS
+0018                  17     LOOP1:
+0018 758A00           18             MOV TL0, #0         ;DELAY 256US 8BIT LOW 
+001B D28C             19             SETB TR0            ;KHOI DONG TIMER
+001D 308DFD           20         JNB TF0, $          ;CHO TRAN
+0020 C28D             21             CLR TF0 
+0022 C28C             22             CLR TR0
+0024 D9F2             23             DJNZ R1, LOOP1
+0026 22               24             RET
+                      25     ;********************************************* CAI DAT THOI GIAN BAT CHO BUZZER
+0027                  26     SETBUZZER:           
+0027 D291             27         SETB P1.1        ;BAT COI
+0029 7AE8             28             MOV R2,#1000     ;DELAY TIME : 8*256US ~ 2MS 
+*** _________________________________________^
+*** WARNING #A52 IN 28 (main.a51, LINE 28): VALUE HAS BEEN TRUNCATED TO 8 BITS
+                      29             
+002B                  30     LOOP2:
+002B 00               31             NOP
+002C 00               32             NOP              ; 2 US 2 NOP
+002D DAFC             33             DJNZ R2,LOOP2    ;2*1000 = 2MS
+002F C291             34             CLR P1.1         ;TURN OFF
+0031 22               35             RET
+                      36     
+                      37     ;*********************************************
+0032                  38     L1:
+0032 ABFA             39         MOV R3,250
+0034 ACFA             40             MOV R4,250
+0036                  41     DELAY: ;250*250*2US
+0036 00               42         NOP
+0037 00               43             NOP
+0038 DBFC             44             DJNZ R3,DELAY
+003A DCFA             45             DJNZ R4,DELAY
+003C 22               46     RET
+                      47             
+                      48     ;********************************************* GUI TEN
+003D                  49     UART:
+003D 758910           50             MOV TMOD,#00010000B ; 
+0040 758DF3           51             MOV TH1,#0F3H  ; BOUD 4800 12MHZ
+0043 759850           52             MOV SCON,#50H  
+                      53             ;TR1 CHUYEN SANG TIMER 0 MOD 3 NEN KO CAN BAT 
+A51 MACRO ASSEMBLER  MAIN                                                                 04/19/2019 11:32:24 PAGE     2
+
+                      54             
+                      55     
+0046                  56     AGAIN:
+0046 7454             57         MOV A,#"T"
+0048 1160             58             ACALL TRUYEN
+004A 7452             59             MOV A,#"R"
+004C 1160             60             ACALL TRUYEN
+004E 7455             61             MOV A,#"U"
+0050 1160             62             ACALL TRUYEN
+0052 744F             63             MOV A,#"O"
+0054 1160             64             ACALL TRUYEN
+0056 744E             65             MOV A,#"N"
+0058 1160             66             ACALL TRUYEN
+005A 7447             67             MOV A,#"G"
+005C 1160             68             ACALL TRUYEN
+005E 1146             69             CALL AGAIN
+0060                  70     TRUYEN: 
+0060 F599             71             MOV SBUF,A       
+0062 3099FD           72             JNB TI,$    
+0065 C299             73             CLR TI
+0067 22               74             RET
+                      75     
+                      76     END
+                                     
+A51 MACRO ASSEMBLER  MAIN                                                                 04/19/2019 11:32:24 PAGE     3
+
+SYMBOL TABLE LISTING
+------ ----- -------
+
+
+N A M E             T Y P E  V A L U E   ATTRIBUTES
+
+AGAIN. . . . . . .  C ADDR   0046H   A   
+BUTTON . . . . . .  B ADDR   00B0H.4 A   
+DELAY. . . . . . .  C ADDR   0036H   A   
+DELAYBITLOW. . . .  C ADDR   0016H   A   
+L1 . . . . . . . .  C ADDR   0032H   A   
+LOOP1. . . . . . .  C ADDR   0018H   A   
+LOOP2. . . . . . .  C ADDR   002BH   A   
+MAIN . . . . . . .  C ADDR   0003H   A   
+P1 . . . . . . . .  D ADDR   0090H   A   
+P3 . . . . . . . .  D ADDR   00B0H   A   
+SBUF . . . . . . .  D ADDR   0099H   A   
+SCON . . . . . . .  D ADDR   0098H   A   
+SETBUZZER. . . . .  C ADDR   0027H   A   
+TF0. . . . . . . .  B ADDR   0088H.5 A   
+TH1. . . . . . . .  D ADDR   008DH   A   
+TI . . . . . . . .  B ADDR   0098H.1 A   
+TL0. . . . . . . .  D ADDR   008AH   A   
+TMOD . . . . . . .  D ADDR   0089H   A   
+TR0. . . . . . . .  B ADDR   0088H.4 A   
+TRUYEN . . . . . .  C ADDR   0060H   A   
+UART . . . . . . .  C ADDR   003DH   A   
+
+
+REGISTER BANK(S) USED: 0 
+
+
+ASSEMBLY COMPLETE.  2 WARNING(S), 0 ERROR(S)
