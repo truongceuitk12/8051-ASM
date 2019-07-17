@@ -1,0 +1,850 @@
+A51 MACRO ASSEMBLER  DONG_HO_SO_DS1307                                                    05/05/2019 07:33:26 PAGE     1
+
+
+MACRO ASSEMBLER A51 V8.2.7.0
+OBJECT MODULE PLACED IN Dong ho so ds1307.OBJ
+ASSEMBLER INVOKED BY: D:\KeilC_v5\C51\BIN\A51.EXE Dong ho so ds1307.asm SET(SMALL) DEBUG EP
+
+LOC  OBJ            LINE     SOURCE
+
+  007F                 1             GIO EQU 7FH ;GIO
+  007E                 2             PHUT EQU 7EH ;PHUT
+  007D                 3             GIAY EQU 7DH ;GIAY
+                       4                     
+  00B6                 5             SCL BIT P3.6 ;CHAN SCL NOI DEN ROM
+  00B7                 6             SDA BIT P3.7 ;CHAN SDA NOI DEN ROM                                       
+                       7     
+  00D0                 8             W1307 EQU 0D0H ;HANG SO VIET VAO DS1307
+  00D1                 9             R1307 EQU 0D1H ;HANG S0 DOC     TU DS1307
+                      10     
+  00A0                11             CHON BIT P2.0 ; NUT NHAN GHON GIA TRI CAN CHINH
+  00A1                12             TANG  BIT P2.1 ; NUT NHAN TANG GIA TRI
+  00A2                13             GIAM BIT P2.2 ; NUT NHAN GIAM GIA TRI
+                      14             
+                      15             
+                      16     
+                      17             
+                      18     
+  0000                19             PN BIT 20H.0 ; BIT NHO CO PHIM NHAN
+  0001                20             BITCT BIT 20H.1; BIT SU DUNG CHO CHUONG TRINH TAO CHOP TAT KHI CHINH
+                      21             
+  REG                 22             CHOPTAT EQU R4 ; THOI GIAN CHO MOI LAN CHOP TAT KHI CHINH
+  REG                 23             CHE_DO EQU R5 ; CHE DO HIEN THI VA CHIN THOI GIAN
+                      24             ;CHE_DO = 0 - BINH THUONG
+                      25             ;CHE_DO = 1 - CHON GIAY
+                      26             ;CHE_DO = 2 - CHON PHUT
+                      27             ;CHE_DO = 3 - CHON GIO
+                      28             ;CHE_DO = 4 - CHON NGAY
+                      29             ;CHE_DO = 5 - CHON THANG
+                      30             ;CHE_DO = 6 - CHON NAM
+  REG                 31             CHUYEN EQU R3 ; CHE DO HIEN THI VA CHIN THOI GIAN
+  0023                32             TG_CHUYEN_DAT EQU 35;
+                      33             
+  REG                 34             N_GIAY EQU R6
+  REG                 35             TG_CHAM EQU R2 ;
+  0002                36             CHAM BIT 20H.2 ;
+0000                  37             ORG 0 ;DIEM NHAP CUA RESET
+                      38     ;======================================== 
+0000                  39     MAIN: ;CHUONG TRINH CHINH
+0000 758130           40             MOV SP,#30H ; NAP VI TRI NGAN XEP BAT DAU TU 30H
+0003 7C64             41             MOV CHOPTAT,#100 ; 
+0005 7D00             42             MOV CHE_DO,#0
+0007 7A00             43             MOV TG_CHAM,#0
+0009 7B00             44             MOV CHUYEN,#0;
+000B 519A             45             CALL DS1307INIT ;KHOI DONG RTC
+000D 5190             46             CALL DOCBT
+000F                  47     MAIN1: 
+000F 51E5             48             CALL DOCTG ;DOC THOI GIAN TU RTC
+0011 EE               49             MOV A,N_GIAY
+0012 B57D03           50             CJNE A,GIAY,M000
+0015                  51             JMP M001
+*** _____________________________________^
+*** ERROR #A45 IN 51 (Dong ho so ds1307.asm, LINE 51): UNDEFINED SYMBOL (PASS-2)
+0018                  52     M000:
+0018 AE7D             53             MOV N_GIAY,GIAY
+001A D202             54             SETB CHAM
+001C 7A00             55             MOV TG_CHAM,#0;
+                      56     ;M001:
+A51 MACRO ASSEMBLER  DONG_HO_SO_DS1307                                                    05/05/2019 07:33:26 PAGE     2
+
+                      57             ;INC TG_CHAM
+                      58             ;CJNE TG_CHAM,#2,M002
+                      59             ;CLR CHAM
+                      60     ;M002:
+                      61     
+                      62             ;INC CHUYEN;
+                      63             ;CJNE CHUYEN,#45,M00
+                      64             ;MOV CHUYEN,#0;
+001E                  65     M00:
+001E 7F28             66             MOV R7,#40
+0020                  67     LAP:
+0020 BD0004           68             CJNE CHE_DO,#0,M1
+0023 312E             69             CALL HIENTHI2;
+0025 8002             70             JMP M2
+0027                  71     M1:
+0027 311D             72             CALL HIENTHI ;HIEN THI QUET LED 7 DOAN
+0029                  73     M2:
+0029 1134             74             CALL QUET_PHIM_NHAN ;GOI CHUONG TRINH NUT NHAN CHINH THOI GIAN
+002B 3111             75             CALL DAO_BIT_CHOP_TAT
+002D                  76             CALL SO_SANH
+*** ______________________________________^
+*** ERROR #A45 IN 76 (Dong ho so ds1307.asm, LINE 76): UNDEFINED SYMBOL (PASS-2)
+0030 DFEE             77             DJNZ R7,LAP
+0032 80DB             78             SJMP  MAIN1 ;LAP LAI CHUONG TRINH
+                      79     
+                      80     ;====================
+                      81     
+                      82     ;======================================== 
+0034                  83     QUET_PHIM_NHAN: ; QUET NUT NHAN
+0034 C0E0             84             PUSH ACC
+0036 300031           85             JNB PN,NKN ; KIEM TRA KHONG NHAN NUT KHI PN = 0
+0039 20A00E           86                     JB CHON,NN0 ; KIEM TRA NHAN PHIM CHON
+003C 7C64             87                             MOV CHOPTAT,#100 ; SO LAN QUET CHOP TAT = 100
+003E C201             88                             CLR BITCT ; TAT LED CHON KHI MOI NHAN
+0040 C200             89                             CLR PN ; XOA PN = 0 ; CO PHIM NHAN
+0042 0D               90                             INC CHE_DO ; TANG CHE DO
+0043 BD072F           91                             CJNE CHE_DO,#7,TQPN ; NEU CHE DO = 7
+0046 7D00             92                             MOV CHE_DO,#0 ; NAP LAI CHE DO = 0
+0048 802B             93                     JMP TQPN
+004A                  94             NN0:
+004A 20A10C           95                     JB TANG,NN1
+004D 7C64             96                             MOV CHOPTAT,#100
+004F D201             97                             SETB BITCT ; HIEN THI LED CHON KHI MOI NHAN
+0051 C200             98                             CLR PN
+0053 1178             99                             CALL TANGTG; TANG GIA TRI DUOC CHON
+0055 51CC            100                             CALL NAPTG
+0057 801C            101                     JMP TQPN
+0059                 102             NN1:
+0059 20A20C          103                     JB GIAM,NN2
+005C 7C64            104                             MOV CHOPTAT,#100
+005E D201            105                             SETB BITCT
+0060 C200            106                             CLR PN 
+0062 11DB            107                             CALL GIAMTG     
+0064 51CC            108                             CALL NAPTG
+0066 800D            109                     JMP TQPN
+0068                 110             NN2:
+                     111                     ;JB CHON_BT,NN3
+                     112                             ;MOV CHOPTAT,#100
+                     113                             ;SETB BITCT ; HIEN THI LED CHON KHI MOI NHAN
+                     114                             ;CLR PN
+                     115                             ;MOV A,CHE_DO ; NAP A GIA TRI CHE DO
+                     116                             ;CJNE A,#4,$+3
+                     117                             ;JNC NN21 ; KHI A >= 4
+                     118                             ;MOV CHE_DO,#4
+                     119                             ;JMP NN22
+                     120                     ;NN21: ; 
+A51 MACRO ASSEMBLER  DONG_HO_SO_DS1307                                                    05/05/2019 07:33:26 PAGE     3
+
+                     121                             ;INC CHE_DO
+                     122                             ;CJNE CHE_DO,#6,NN22
+                     123                             ;MOV CHE_DO,#0 
+                     124                             ;CALL NAPBT
+                     125                     ;NN22:
+                     126                     ;JMP TQPN
+0068                 127             NN3:
+                     128     ;       JB TAT_BT,TQPN
+                     129     ;       SETB COI
+0068 800B            130             JMP TQPN
+006A                 131     NKN: ; KIEM TRA NUT KHONG NHAN
+006A 30A008          132             JNB CHON,TQPN ; KHI TAT CA CAC PHIM DUOC NHA
+                     133     ;       JNB CHON_BT,TQPN
+006D 30A205          134             JNB GIAM,TQPN
+0070 30A102          135             JNB TANG,TQPN
+0073 D200            136             SETB PN ; PN = 1 ; CHO PHEP NHAN PHIM TIEPP THEO
+0075                 137     TQPN:
+0075 D0E0            138             POP ACC
+0077 22              139             RET
+                     140     ;=====================
+                     141     ;======================================== 
+0078                 142     TANGTG: ;CHUONG TRINH CON TANG THOI GIAN THEO MO
+0078 C0E0            143             PUSH ACC
+007A D201            144             SETB BITCT
+                     145     
+                     146     ;--------------------
+007C                 147     TGIAY: ;TANG GIAY
+007C BD010E          148             CJNE CHE_DO,#1,TP
+007F E57D            149             MOV A,GIAY
+0081 2401            150             ADD A,#1 ;CONG THANH GHI A THEM 1
+0083 D4              151             DA A ;HIEU CHINH THAP PHAN THANH GHI A
+0084 B46002          152             CJNE A,#60H,TGIAY1
+0087 7400            153             MOV A,#00H ;GIOI HAN 00 - 59
+0089                 154     TGIAY1:
+0089 F57D            155             MOV GIAY,A
+008B 51CC            156             CALL NAPTG ;NAP GIAY VUA CHINH DUOC VAO RTC
+                     157     ;--------------------
+008D                 158     TP: ;TANG PHUT
+008D BD020C          159             CJNE CHE_DO,#2,TG
+0090 E57E            160             MOV A,PHUT
+0092 2401            161             ADD A,#1
+0094 D4              162             DA A
+0095 B46002          163             CJNE A,#60H,TP1
+0098 7400            164             MOV A,#00H ;GIOI HAN 00 - 59
+009A                 165     TP1:
+009A F57E            166             MOV PHUT,A
+                     167     ;--------------------
+009C                 168     TG:
+009C BD030C          169             CJNE CHE_DO,#3,TNGAY
+009F E57F            170             MOV A,GIO
+00A1 2401            171             ADD A,#1
+00A3 D4              172             DA A
+00A4 B42402          173             CJNE A,#24H,TG3
+00A7 7400            174             MOV A,#00H ;GIOI HAN 00 - 23
+00A9                 175     TG3:
+00A9 F57F            176             MOV GIO,A
+                     177     ;--------------------
+00AB                 178     TNGAY:
+00AB BD040C          179             CJNE CHE_DO,#4,TTHANG
+00AE                 180             MOV A,NGAY
+*** _______________________________________^
+*** ERROR #A45 IN 180 (Dong ho so ds1307.asm, LINE 180): UNDEFINED SYMBOL (PASS-2)
+00B0 2401            181             ADD A,#1
+00B2 D4              182             DA A
+                     183     
+00B3 B43202          184             CJNE A,#32H,TNGAY1
+A51 MACRO ASSEMBLER  DONG_HO_SO_DS1307                                                    05/05/2019 07:33:26 PAGE     4
+
+00B6 7401            185             MOV A,#01H
+00B8                 186     TNGAY1:
+00B8                 187             MOV NGAY,A
+*** _____________________________________^
+*** ERROR #A45 IN 187 (Dong ho so ds1307.asm, LINE 187): UNDEFINED SYMBOL (PASS-2)
+                     188     
+00BA                 189     TTHANG:
+00BA BD050C          190             CJNE CHE_DO,#5,TNAM
+00BD                 191             MOV A,THANG
+*** _______________________________________^
+*** ERROR #A45 IN 191 (Dong ho so ds1307.asm, LINE 191): UNDEFINED SYMBOL (PASS-2)
+00BF 2401            192             ADD A,#1
+00C1 D4              193             DA A
+00C2 B41302          194             CJNE A,#13H,TTHANG1
+00C5 7401            195             MOV A,#01H
+00C7                 196     TTHANG1:
+00C7                 197             MOV THANG,A
+*** _____________________________________^
+*** ERROR #A45 IN 197 (Dong ho so ds1307.asm, LINE 197): UNDEFINED SYMBOL (PASS-2)
+                     198     
+00C9                 199     TNAM:
+00C9 BD0607          200             CJNE CHE_DO,#6,TT
+00CC                 201             MOV A,NAM
+*** _______________________________________^
+*** ERROR #A45 IN 201 (Dong ho so ds1307.asm, LINE 201): UNDEFINED SYMBOL (PASS-2)
+00CE 2401            202             ADD A,#1
+00D0 D4              203             DA A
+00D1                 204             MOV NAM,A
+*** _____________________________________^
+*** ERROR #A45 IN 204 (Dong ho so ds1307.asm, LINE 204): UNDEFINED SYMBOL (PASS-2)
+00D3                 205     TT:
+00D3 BD0102          206             CJNE CHE_DO,#1,TTT
+00D6 51CC            207             ACALL NAPTG
+00D8                 208     TTT:
+00D8 D0E0            209             POP ACC
+00DA 22              210             RET
+                     211     ;======================================== 
+00DB                 212     GIAMTG: ;GIAM THOI GIAN
+00DB C0E0            213             PUSH ACC
+00DD D201            214             SETB BITCT ;BAT BIT TAO CHOP TAT ( CHO HIEN THI KHI MOI NHAN NUT )
+                     215     ;       MOV BCT,#25 ;NAP LAI SO LAN LAP
+                     216     ;--------------------
+00DF                 217     GGIAY: ;GIAM GIAY
+00DF BD010E          218             CJNE CHE_DO,#1,GP
+00E2 E57D            219             MOV A,GIAY
+00E4 2499            220             ADD A,#99H
+00E6 D4              221             DA A
+00E7 B49902          222             CJNE A,#99H,GGIAY1
+00EA 7459            223             MOV A,#59H
+00EC                 224     GGIAY1:
+00EC F57D            225             MOV     GIAY,A
+00EE 51CC            226             CALL NAPTG
+                     227     ;--------------------
+00F0                 228     GP: ;GIAM GIO
+00F0 BD020C          229             CJNE CHE_DO,#2,GG
+00F3 E57E            230             MOV A,PHUT
+00F5 2499            231             ADD A,#99H
+00F7 D4              232             DA A
+00F8 B49902          233             CJNE A,#99H,GP1
+00FB 7459            234             MOV A,#59H
+00FD                 235     GP1:
+00FD F57E            236             MOV     PHUT,A
+                     237     ;--------------------
+00FF                 238     GG: ;GIAM GIO
+00FF                 239             CJNE CHE_DO,#3,GNGAY
+*** ________________________________________________^
+A51 MACRO ASSEMBLER  DONG_HO_SO_DS1307                                                    05/05/2019 07:33:26 PAGE     5
+
+*** ERROR #A45 IN 239 (Dong ho so ds1307.asm, LINE 239): UNDEFINED SYMBOL (PASS-2)
+0102 E57F            240             MOV A,GIO
+0104 2499            241             ADD A,#99H
+0106 D4              242             DA A
+0107 B49902          243             CJNE A,#99H,TG6
+010A 7423            244             MOV A,#23H
+010C                 245     TG6:
+010C F57F            246             MOV     GIO,A
+                     247     ;--------------------
+                     248     ;========================
+010E                 249     TGT:
+                     250     ;G_PHUT_BT: ;GIAM PHUT BAO THUC
+                     251             ;CJNE CHE_DO,#4,G_GIO_BT
+                     252             ;MOV A,PHUT_BT
+                     253             ;ADD A,#99H
+                     254             ;DA A
+                     255             ;CJNE A,#99H,GAP
+                     256             ;MOV    A,#59H
+                     257     ;GAP:
+                     258             ;MOV    PHUT_BT,A
+                     259     ;;--------------------
+                     260     ;G_GIO_BT: ;GIAM GIO BAO THUC
+                     261             ;CJNE CHE_DO,#5,TGTG
+                     262             ;MOV A,GIO_BT
+                     263             ;ADD A,#99H
+                     264             ;DA A
+                     265             ;CJNE A,#99H,GAG
+                     266             ;MOV A,#23H
+                     267     ;GAG:
+                     268             ;MOV GIO_BT,A
+                     269     ;--------------------
+                     270     ;TGTG: ;THOAT GIAM THOI GIAN
+010E D0E0            271             POP ACC
+0110 22              272             RET
+                     273     ;======================================== 
+0111                 274     DAO_BIT_CHOP_TAT:
+0111 BD0002          275             CJNE CHE_DO,#0,DBCT1
+0114 8006            276             JMP TDBCT
+0116                 277     DBCT1:
+0116 DC04            278             DJNZ CHOPTAT,TDBCT
+0118 7C64            279             MOV CHOPTAT,#100
+011A B201            280             CPL BITCT
+011C                 281     TDBCT:
+011C 22              282             RET
+                     283     ;======================================== 
+                     284     ;QUET HIEN THI LAN LUOT TUNG LED 7 DOAN
+                     285     ;TAI 1 THOI DIEM CHI SANG 1 LED
+                     286     ;==========================
+011D                 287     HIENTHI:
+011D C0E0            288             PUSH ACC
+011F ED              289             MOV A,CHE_DO ; NAP A GIA TRI CHE DO
+0120 B40400          290             CJNE A,#4,$+3
+0123 5004            291             JNC HT0; KHI A >= 4
+                     292     ;       JNB TAT_BT,HT0
+0125 313F            293             CALL HIEN_THI_1 ; KHI A < 4 hien thi gpg 
+0127 8002            294             JMP THT0
+0129                 295             HT0: ; 
+0129 31CF            296             CALL HIEN_THI_2 ; KHI A > 4 hien thi ntn
+012B                 297             THT0:
+012B D0E0            298             POP ACC
+012D 22              299             RET 
+                     300     ;======================================== 
+012E                 301     HIENTHI2:
+012E C0E0            302             PUSH ACC
+0130 EB              303             MOV A,CHUYEN ; NAP A GIA TRI CHE DO
+0131 B42300          304             CJNE A,#TG_CHUYEN_DAT,$+3
+A51 MACRO ASSEMBLER  DONG_HO_SO_DS1307                                                    05/05/2019 07:33:26 PAGE     6
+
+0134 5004            305             JNC HT20; KHI A >= 4
+0136 313F            306             CALL HIEN_THI_1 ; KHI A < 4 hien thi gpg 
+0138 8002            307             JMP THT20
+013A                 308             HT20: ; 
+013A 31CF            309             CALL HIEN_THI_2 ; KHI A > 4 hien thi ntn
+013C                 310             THT20:
+013C D0E0            311             POP ACC
+013E 22              312             RET 
+                     313     ;======================================== 
+013F                 314     HIEN_THI_1:
+013F E57F            315             MOV A,GIO ;NAP GIO VAO A 
+0141 C4              316             SWAP A ;HOAN DOI CAO THAP THANH GHI A
+0142 540F            317             ANL A,#0FH ;XOA BO 4 BIT CAO
+0144 5157            318             CALL BCD7 ;DOI MA BCD SANG MA 7 DOAN
+0146 F580            319             MOV P0,A ;XUAT MA 7 DOAN RA PORT 0
+0148 BD0303          320             CJNE CHE_DO,#3,HT11
+014B 300103          321             JNB BITCT,HT12
+014E                 322             HT11:
+014E 7590FE          323             MOV P1,#11111110B ;XUAT MA QUET LET HANG CHUC GIO
+0151                 324             HT12:
+0151 5168            325             CALL TRELED ;TOA THOI GIAN TRE QUET LED
+0153 7590FF          326             MOV P1,#0FFH ;XOA PORT QUET LED
+                     327             
+0156 E57F            328             MOV A,GIO
+0158 540F            329             ANL A,#0FH
+015A 5157            330             CALL BCD7
+015C F580            331             MOV P0,A
+015E A202            332             MOV C,CHAM
+0160 9287            333             MOV P0.7,C
+0162 BD0303          334             CJNE CHE_DO,#3,HT13
+0165 300103          335             JNB BITCT,HT14
+0168                 336             HT13:
+0168 7590FD          337             MOV P1,#11111101B ;XUAT MA QUET LET HANG CHUC GIO
+016B                 338             HT14:
+016B 5168            339             CALL TRELED
+016D 7590FF          340             MOV P1,#0FFH
+                     341     
+0170 E57E            342             MOV A,PHUT
+0172 C4              343             SWAP A
+0173 540F            344             ANL A,#0FH
+0175 5157            345             CALL BCD7
+0177 F580            346             MOV P0,A
+0179 BD0203          347             CJNE CHE_DO,#2,HT15
+017C 300103          348             JNB BITCT,HT16
+017F                 349             HT15:
+017F 7590FB          350             MOV P1,#11111011B ;XUAT MA QUET LET HANG CHUC GIO
+0182                 351             HT16:
+0182 5168            352             CALL TRELED
+0184 7590FF          353             MOV P1,#0FFH
+                     354     
+0187 E57E            355             MOV A,PHUT
+0189 540F            356             ANL A,#0FH
+018B 5157            357             CALL BCD7
+018D F580            358             MOV P0,A
+018F A202            359             MOV C,CHAM
+0191 9287            360             MOV P0.7,C
+0193 BD0203          361             CJNE CHE_DO,#2,HT17
+0196 300103          362             JNB BITCT,HT18
+0199                 363             HT17:
+0199 7590F7          364             MOV P1,#11110111B ;XUAT MA QUET LET HANG CHUC GIO
+019C                 365             HT18:
+019C 5168            366             CALL TRELED
+019E 7590FF          367             MOV P1,#0FFH
+                     368     
+01A1 E57D            369             MOV A,GIAY
+01A3 C4              370             SWAP A
+A51 MACRO ASSEMBLER  DONG_HO_SO_DS1307                                                    05/05/2019 07:33:26 PAGE     7
+
+01A4 540F            371             ANL A,#0FH
+01A6 5157            372             CALL BCD7
+01A8 F580            373             MOV P0,A
+01AA BD0103          374             CJNE CHE_DO,#1,HT19
+01AD 300103          375             JNB BITCT,HT110
+01B0                 376             HT19:
+01B0 7590EF          377             MOV P1,#11101111B ;XUAT MA QUET LET HANG CHUC GIO
+01B3                 378             HT110:
+01B3 5168            379             CALL TRELED
+01B5 7590FF          380             MOV P1,#0FFH
+                     381     
+01B8 E57D            382             MOV A,GIAY
+01BA 540F            383             ANL A,#0FH
+01BC 5157            384             CALL BCD7
+01BE F580            385             MOV P0,A
+                     386             
+                     387             
+01C0 BD0103          388             CJNE CHE_DO,#1,HT111
+01C3 300103          389             JNB BITCT,HT112
+01C6                 390             HT111:
+01C6 7590DF          391             MOV P1,#11011111B ;XUAT MA QUET LET HANG CHUC GIO
+01C9                 392             HT112:
+01C9 5168            393             CALL TRELED
+01CB 7590FF          394             MOV P1,#0FFH
+01CE 22              395             RET
+                     396     ;======================================== 
+01CF                 397     HIEN_THI_2:
+01CF                 398             MOV A,NGAY ;NAP NGAY VAO A 
+*** _______________________________________^
+*** ERROR #A45 IN 398 (Dong ho so ds1307.asm, LINE 398): UNDEFINED SYMBOL (PASS-2)
+01D1 C4              399             SWAP A ;HOAN DOI CAO THAP THANH GHI A
+01D2 540F            400             ANL A,#0FH ;XOA BO 4 BIT CAO
+01D4 5157            401             CALL BCD7 ;DOI MA BCD SANG MA 7 DOAN
+01D6 F580            402             MOV P0,A ;XUAT MA 7 DOAN RA PORT 0
+01D8 BD0403          403             CJNE CHE_DO,#4,HT21
+01DB 300103          404             JNB BITCT,HT22
+01DE                 405             HT21:
+01DE 7590FE          406             MOV P1,#11111110B ;XUAT MA QUET LET HANG CHUC GIO
+01E1                 407             HT22:
+01E1 5168            408             CALL TRELED ;TOA THOI GIAN TRE QUET LED
+01E3 7590FF          409             MOV P1,#0FFH ;XOA PORT QUET LED
+                     410             
+01E6                 411             MOV A,NGAY
+*** _______________________________________^
+*** ERROR #A45 IN 411 (Dong ho so ds1307.asm, LINE 411): UNDEFINED SYMBOL (PASS-2)
+01E8 540F            412             ANL A,#0FH
+01EA 5157            413             CALL BCD7
+01EC F580            414             MOV P0,A
+01EE BD0403          415             CJNE CHE_DO,#4,HT23
+01F1 300103          416             JNB BITCT,HT24
+01F4                 417             HT23:
+01F4 7590FD          418             MOV P1,#11111101B ;XUAT MA QUET LET HANG CHUC GIO
+01F7                 419             HT24:
+01F7 5168            420             CALL TRELED
+01F9 7590FF          421             MOV P1,#0FFH
+                     422     
+01FC                 423             MOV A,THANG
+*** _______________________________________^
+*** ERROR #A45 IN 423 (Dong ho so ds1307.asm, LINE 423): UNDEFINED SYMBOL (PASS-2)
+01FE C4              424             SWAP A
+01FF 540F            425             ANL A,#0FH
+0201 5157            426             CALL BCD7
+0203 F580            427             MOV P0,A
+0205 BD0503          428             CJNE CHE_DO,#5,HT25
+0208 300103          429             JNB BITCT,HT26
+020B                 430             HT25:
+A51 MACRO ASSEMBLER  DONG_HO_SO_DS1307                                                    05/05/2019 07:33:26 PAGE     8
+
+020B 7590FB          431             MOV P1,#11111011B ;XUAT MA QUET LET HANG CHUC GIO
+020E                 432             HT26:
+020E 5168            433             CALL TRELED
+0210 7590FF          434             MOV P1,#0FFH
+                     435     
+0213                 436             MOV A,THANG
+*** _______________________________________^
+*** ERROR #A45 IN 436 (Dong ho so ds1307.asm, LINE 436): UNDEFINED SYMBOL (PASS-2)
+0215 540F            437             ANL A,#0FH
+0217 5157            438             CALL BCD7
+0219 F580            439             MOV P0,A
+021B BD0503          440             CJNE CHE_DO,#5,HT27
+021E 300103          441             JNB BITCT,HT28
+0221                 442             HT27:
+0221 7590F7          443             MOV P1,#11110111B ;XUAT MA QUET LET HANG CHUC GIO
+0224                 444             HT28:
+0224 5168            445             CALL TRELED
+0226 7590FF          446             MOV P1,#0FFH
+                     447     
+0229                 448             MOV A,NAM
+*** _______________________________________^
+*** ERROR #A45 IN 448 (Dong ho so ds1307.asm, LINE 448): UNDEFINED SYMBOL (PASS-2)
+022B C4              449             SWAP A
+022C 540F            450             ANL A,#0FH
+022E 5157            451             CALL BCD7
+0230 F580            452             MOV P0,A
+0232 BD0603          453             CJNE CHE_DO,#6,HT29
+0235 300103          454             JNB BITCT,HT210
+0238                 455             HT29:
+0238 7590EF          456             MOV P1,#11101111B ;XUAT MA QUET LET HANG CHUC GIO
+023B                 457             HT210:
+023B 5168            458             CALL TRELED
+023D 7590FF          459             MOV P1,#0FFH
+                     460     
+0240                 461             MOV A,NAM
+*** _______________________________________^
+*** ERROR #A45 IN 461 (Dong ho so ds1307.asm, LINE 461): UNDEFINED SYMBOL (PASS-2)
+0242 540F            462             ANL A,#0FH
+0244 5157            463             CALL BCD7
+0246 F580            464             MOV P0,A
+0248 BD0603          465             CJNE CHE_DO,#6,HT211
+024B 300103          466             JNB BITCT,HT212
+024E                 467             HT211:
+024E 7590DF          468             MOV P1,#11011111B ;XUAT MA QUET LET HANG CHUC GIO
+0251                 469             HT212:
+0251 5168            470             CALL TRELED
+0253 7590FF          471             MOV P1,#0FFH
+0256 22              472             RET
+                     473     ;===============================
+0257                 474     BCD7: ;DOI MA BCD SANG MA 7 DOAN 
+0257 90025C          475             MOV DPTR,#MA7DOAN
+025A 93              476             MOVC A,@A+DPTR
+025B 22              477             RET
+025C                 478     MA7DOAN: ;BANG MA 7 DOAN
+025C C0F9A4B0        479             DB 0C0H,0F9H,0A4H,0B0H,99H
+0260 99                      
+                     480             ;   0    1    2    3    4 
+0261 9282F880        481             DB 92H,82H,0F8H,80H,90H,0FFH 
+0265 90FF                    
+                     482             ;   5   6   7    8   9 
+0267 C6              483             DB 0C6H
+                     484             ;       C 
+                     485     ;================================
+                     486     ;=======================        
+0268                 487     TRELED: ;TAO TRE CHO LED KHI QUET
+0268 C000            488             PUSH 0
+A51 MACRO ASSEMBLER  DONG_HO_SO_DS1307                                                    05/05/2019 07:33:26 PAGE     9
+
+026A C001            489             PUSH 1
+026C 7902            490             MOV R1,#2
+026E                 491     TL:
+026E 78FA            492             MOV R0,#250
+0270 D8FE            493             DJNZ R0,$
+0272 D9FA            494             DJNZ R1,TL ; uS
+0274 D001            495             POP 1
+0276 D000            496             POP 0
+0278 22              497             RET
+                     498     ;========================================       
+0279                 499     NAPBT: ;NAP THOI GIAN BAO THUC
+0279 C0E0            500             PUSH ACC
+027B 51FC            501             CALL START_BIT
+027D 74D0            502             MOV A,#W1307
+027F 710D            503             CALL SENT_BYTE
+0281 7408            504             MOV     A,#8 ;NAP VAO RTC BAT DAU TU BYTE THU 8
+0283 710D            505             CALL SENT_BYTE
+0285                 506             MOV A,PHUT_BT
+*** _______________________________________^
+*** ERROR #A45 IN 506 (Dong ho so ds1307.asm, LINE 506): UNDEFINED SYMBOL (PASS-2)
+0287 710D            507             CALL SENT_BYTE
+0289                 508             MOV     A,GIO_BT
+*** ___________________________________________^
+*** ERROR #A45 IN 508 (Dong ho so ds1307.asm, LINE 508): UNDEFINED SYMBOL (PASS-2)
+028B 710D            509             CALL SENT_BYTE
+028D D0E0            510             POP ACC
+028F 22              511             RET
+                     512     ;===================     
+0290                 513     DOCBT:
+0290 C004            514             PUSH 4
+0292 7C08            515             MOV     R4,#8
+0294 713D            516             CALL DOCBYTE
+0296                 517             MOV     PHUT_BT,A
+*** _________________________________________^
+*** ERROR #A45 IN 517 (Dong ho so ds1307.asm, LINE 517): UNDEFINED SYMBOL (PASS-2)
+                     518     
+                     519             
+0298 D004            520             POP 4
+                     521     ;======================================== 
+029A                 522     DS1307INIT: ; KHOI DONG RTC; XOA BIT 7 BYTE
+029A C0E0            523             PUSH ACC ; CAT TAM GIA TRI THANH GHI A VAO NGAN XEP
+029C C0F0            524             PUSH B ; CAT TAM GIA TRI THANH GHI B VAO NGAN XEP
+029E 51FC            525             CALL START_BIT ; TAO START BIT
+02A0 74D0            526             MOV  A,#W1307 ; NAP MA GHI DS1307
+02A2 710D            527             CALL SENT_BYTE ; GHI VAO DS1307
+02A4 7400            528             MOV  A,#0 ; NAP DIA CHI 0 VAO DS1307
+02A6 710D            529             CALL SENT_BYTE ; GHI VAO DS1307
+                     530     ;       CALL STOPB ; TAO STOP BIT
+                     531     ;--------------------------------------- 
+02A8 51FC            532             CALL START_BIT
+02AA 74D1            533             MOV  A,#R1307 ; NAP MA DOC DS1307
+02AC 710D            534             CALL SENT_BYTE ; GHI VAO DS1307
+02AE 7127            535             CALL RBYTE ; DOC BYET 0 TU DS1307 RA
+02B0 30E712          536             JNB ACC.7,EDS1307I ; THOAT KHOI DONG KHI BIT 7 DA DUOC XOA
+02B3 C2E7            537             CLR  ACC.7 ; XOA BIT DAO DONG ( CHO PHEP TRC HOAT DONG )
+02B5 F5F0            538             MOV  B,A ; CAT GIA TRI A VAO B
+                     539     ;       CALL STOPB ; TAO STOP BIT
+                     540     ;--------------------------------------- 
+02B7 51FC            541             CALL START_BIT
+02B9 74D0            542             MOV  A,#W1307
+02BB 710D            543             CALL SENT_BYTE
+02BD 7400            544             MOV      A,#0
+02BF 710D            545             CALL SENT_BYTE
+02C1 E5F0            546             MOV  A,B
+02C3 710D            547             CALL SENT_BYTE
+02C5                 548     EDS1307I:
+A51 MACRO ASSEMBLER  DONG_HO_SO_DS1307                                                    05/05/2019 07:33:26 PAGE    10
+
+02C5 7105            549             CALL STOP_BIT 
+02C7 D0F0            550             POP B
+02C9 D0E0            551             POP ACC
+02CB 22              552             RET
+                     553     ;======================================== 
+                     554     ;==================
+02CC                 555     NAPTG: ;NAP THOI GIAN VAO RTC
+02CC 51FC            556             CALL START_BIT  ;GOI STATR BIT
+02CE 74D0            557             MOV A,#W1307 ;NAP CHE DO GHI VAO RTC
+02D0 710D            558             CALL SENT_BYTE ;GHI BYTE VAO TRC
+02D2 7400            559             MOV     A,#00H ;NAP DIA CHI VAO RTC
+02D4 710D            560             CALL SENT_BYTE
+02D6 E57D            561             MOV A,GIAY ;NAP GIAY VAO RTC
+02D8 710D            562             CALL SENT_BYTE ;GHI BYTE VAO TRC TU DONG TANG DIA CHI
+02DA E57E            563             MOV     A,PHUT ;NAP PHUT VAO RCT
+02DC 710D            564             CALL SENT_BYTE
+02DE E57F            565             MOV     A,GIO
+02E0 710D            566             CALL SENT_BYTE
+02E2 7105            567             CALL STOP_BIT ;GOI STOP BIT
+02E4 22              568             RET
+                     569     ;==================
+                     570     ;CTC DOC CAC GIA TRI THOI GIAN
+                     571     ;============================
+02E5                 572     DOCTG: ;DOC THOI GIAN
+02E5 C004            573             PUSH 4
+02E7 7C00            574             MOV     R4,#0 ;NAP DIA CHI 0
+02E9 713D            575             CALL DOCBYTE ;DOC BYTE THEO DIA CHI
+02EB F57D            576             MOV     GIAY,A 
+02ED 7C01            577             MOV     R4,#1
+02EF 713D            578             CALL DOCBYTE
+02F1 F57E            579             MOV     PHUT,A
+02F3 7C02            580             MOV     R4,#2
+02F5 713D            581             CALL DOCBYTE
+02F7 F57F            582             MOV     GIO,A
+02F9 D004            583             POP 4
+02FB 22              584             RET
+                     585     ;======================================== 
+02FC                 586     START_BIT: ; BIT START I2C
+02FC D2B7            587             SETB SDA
+02FE D2B6            588             SETB SCL
+0300 C2B7            589             CLR SDA
+0302 C2B6            590             CLR SCL
+0304 22              591             RET
+                     592     ;======================================== 
+0305                 593     STOP_BIT: ; BIT STOP I2C                                
+0305 C2B7            594             CLR     SDA
+0307 D2B6            595             SETB SCL
+0309 00              596             NOP
+030A D2B7            597             SETB SDA
+030C 22              598             RET
+030D                 599     SENT_BYTE: ; GHI 1 BYTE DU LIEU
+030D C000            600             PUSH 0 ;CAT TAM THOI GIA TRI THANH GHI R0 VAO NGAN XEP 
+030F 33              601             RLC A
+0310 7808            602             MOV R0,#8 ;NAP SO LAN LAP 8 LAN
+0312                 603     SB0:
+0312 C2B6            604             CLR SCL 
+0314 92B7            605             MOV SDA,C
+0316 00              606             NOP
+0317 D2B6            607             SETB SCL ;DUA CHAN SCL LEN MUC CAO 
+0319 C2B6            608             CLR SCL
+031B 33              609             RLC A
+031C D8F4            610             DJNZ R0,SB0
+031E D2B7            611             SETB SDA
+0320 D2B6            612             SETB SCL
+0322 C2B6            613             CLR SCL
+0324 D000            614             POP 0 ;LAY GIA TRI CHO THANH GHI R0 TU NGAN XEP 
+A51 MACRO ASSEMBLER  DONG_HO_SO_DS1307                                                    05/05/2019 07:33:26 PAGE    11
+
+0326 22              615             RET
+                     616     ;======================================== 
+0327                 617     RBYTE: ; DOC 1 BYTE DU LIEU
+0327 C007            618             PUSH 7                                  
+0329 7F08            619             MOV R7,#8
+032B                 620     RB:
+032B D2B6            621             SETB SCL
+032D A2B7            622             MOV C,SDA
+032F C2B6            623             CLR SCL
+0331 33              624             RLC A
+0332 DFF7            625             DJNZ R7,RB
+0334 D2B7            626             SETB SDA
+0336 D2B6            627             SETB SCL
+0338 C2B6            628             CLR     SCL
+033A D007            629             POP 7
+033C 22              630             RET
+                     631     ;=======================
+033D                 632     DOCBYTE: ; DOC 1 BYTE TU DS1307
+033D 51FC            633             CALL START_BIT
+033F 74D0            634             MOV      A,#W1307
+0341 710D            635             CALL SENT_BYTE
+0343 EC              636             MOV      A,R4
+0344 710D            637             CALL SENT_BYTE
+0346 51FC            638             CALL START_BIT
+0348 74D1            639             MOV A,#R1307
+034A 710D            640             CALL SENT_BYTE
+034C 7127            641             CALL RBYTE
+034E 7105            642             CALL STOP_BIT
+0350 22              643             RET
+                     644     ;====================
+                     645             END
+A51 MACRO ASSEMBLER  DONG_HO_SO_DS1307                                                    05/05/2019 07:33:26 PAGE    12
+
+SYMBOL TABLE LISTING
+------ ----- -------
+
+
+N A M E             T Y P E  V A L U E   ATTRIBUTES
+
+ACC. . . . . . . .  D ADDR   00E0H   A   
+B. . . . . . . . .  D ADDR   00F0H   A   
+BCD7 . . . . . . .  C ADDR   0257H   A   
+BITCT. . . . . . .  B ADDR   0020H.1 A   
+CHAM . . . . . . .  B ADDR   0020H.2 A   
+CHE_DO . . . . . .    REG    R5          
+CHON . . . . . . .  B ADDR   00A0H.0 A   
+CHOPTAT. . . . . .    REG    R4          
+CHUYEN . . . . . .    REG    R3          
+DAO_BIT_CHOP_TAT .  C ADDR   0111H   A   
+DBCT1. . . . . . .  C ADDR   0116H   A   
+DOCBT. . . . . . .  C ADDR   0290H   A   
+DOCBYTE. . . . . .  C ADDR   033DH   A   
+DOCTG. . . . . . .  C ADDR   02E5H   A   
+DS1307INIT . . . .  C ADDR   029AH   A   
+EDS1307I . . . . .  C ADDR   02C5H   A   
+GG . . . . . . . .  C ADDR   00FFH   A   
+GGIAY. . . . . . .  C ADDR   00DFH   A   
+GGIAY1 . . . . . .  C ADDR   00ECH   A   
+GIAM . . . . . . .  B ADDR   00A0H.2 A   
+GIAMTG . . . . . .  C ADDR   00DBH   A   
+GIAY . . . . . . .  N NUMB   007DH   A   
+GIO. . . . . . . .  N NUMB   007FH   A   
+GIO_BT . . . . . .    ----   -----       
+GNGAY. . . . . . .    ----   -----       
+GP . . . . . . . .  C ADDR   00F0H   A   
+GP1. . . . . . . .  C ADDR   00FDH   A   
+HIENTHI. . . . . .  C ADDR   011DH   A   
+HIENTHI2 . . . . .  C ADDR   012EH   A   
+HIEN_THI_1 . . . .  C ADDR   013FH   A   
+HIEN_THI_2 . . . .  C ADDR   01CFH   A   
+HT0. . . . . . . .  C ADDR   0129H   A   
+HT11 . . . . . . .  C ADDR   014EH   A   
+HT110. . . . . . .  C ADDR   01B3H   A   
+HT111. . . . . . .  C ADDR   01C6H   A   
+HT112. . . . . . .  C ADDR   01C9H   A   
+HT12 . . . . . . .  C ADDR   0151H   A   
+HT13 . . . . . . .  C ADDR   0168H   A   
+HT14 . . . . . . .  C ADDR   016BH   A   
+HT15 . . . . . . .  C ADDR   017FH   A   
+HT16 . . . . . . .  C ADDR   0182H   A   
+HT17 . . . . . . .  C ADDR   0199H   A   
+HT18 . . . . . . .  C ADDR   019CH   A   
+HT19 . . . . . . .  C ADDR   01B0H   A   
+HT20 . . . . . . .  C ADDR   013AH   A   
+HT21 . . . . . . .  C ADDR   01DEH   A   
+HT210. . . . . . .  C ADDR   023BH   A   
+HT211. . . . . . .  C ADDR   024EH   A   
+HT212. . . . . . .  C ADDR   0251H   A   
+HT22 . . . . . . .  C ADDR   01E1H   A   
+HT23 . . . . . . .  C ADDR   01F4H   A   
+HT24 . . . . . . .  C ADDR   01F7H   A   
+HT25 . . . . . . .  C ADDR   020BH   A   
+HT26 . . . . . . .  C ADDR   020EH   A   
+HT27 . . . . . . .  C ADDR   0221H   A   
+HT28 . . . . . . .  C ADDR   0224H   A   
+HT29 . . . . . . .  C ADDR   0238H   A   
+LAP. . . . . . . .  C ADDR   0020H   A   
+M00. . . . . . . .  C ADDR   001EH   A   
+M000 . . . . . . .  C ADDR   0018H   A   
+A51 MACRO ASSEMBLER  DONG_HO_SO_DS1307                                                    05/05/2019 07:33:26 PAGE    13
+
+M001 . . . . . . .    ----   -----       
+M1 . . . . . . . .  C ADDR   0027H   A   
+M2 . . . . . . . .  C ADDR   0029H   A   
+MA7DOAN. . . . . .  C ADDR   025CH   A   
+MAIN . . . . . . .  C ADDR   0000H   A   
+MAIN1. . . . . . .  C ADDR   000FH   A   
+NAM. . . . . . . .    ----   -----       
+NAPBT. . . . . . .  C ADDR   0279H   A   
+NAPTG. . . . . . .  C ADDR   02CCH   A   
+NGAY . . . . . . .    ----   -----       
+NKN. . . . . . . .  C ADDR   006AH   A   
+NN0. . . . . . . .  C ADDR   004AH   A   
+NN1. . . . . . . .  C ADDR   0059H   A   
+NN2. . . . . . . .  C ADDR   0068H   A   
+NN3. . . . . . . .  C ADDR   0068H   A   
+N_GIAY . . . . . .    REG    R6          
+P0 . . . . . . . .  D ADDR   0080H   A   
+P1 . . . . . . . .  D ADDR   0090H   A   
+P2 . . . . . . . .  D ADDR   00A0H   A   
+P3 . . . . . . . .  D ADDR   00B0H   A   
+PHUT . . . . . . .  N NUMB   007EH   A   
+PHUT_BT. . . . . .    ----   -----       
+PN . . . . . . . .  B ADDR   0020H.0 A   
+QUET_PHIM_NHAN . .  C ADDR   0034H   A   
+R1307. . . . . . .  N NUMB   00D1H   A   
+RB . . . . . . . .  C ADDR   032BH   A   
+RBYTE. . . . . . .  C ADDR   0327H   A   
+SB0. . . . . . . .  C ADDR   0312H   A   
+SCL. . . . . . . .  B ADDR   00B0H.6 A   
+SDA. . . . . . . .  B ADDR   00B0H.7 A   
+SENT_BYTE. . . . .  C ADDR   030DH   A   
+SO_SANH. . . . . .    ----   -----       
+SP . . . . . . . .  D ADDR   0081H   A   
+START_BIT. . . . .  C ADDR   02FCH   A   
+STOP_BIT . . . . .  C ADDR   0305H   A   
+TANG . . . . . . .  B ADDR   00A0H.1 A   
+TANGTG . . . . . .  C ADDR   0078H   A   
+TDBCT. . . . . . .  C ADDR   011CH   A   
+TG . . . . . . . .  C ADDR   009CH   A   
+TG3. . . . . . . .  C ADDR   00A9H   A   
+TG6. . . . . . . .  C ADDR   010CH   A   
+TGIAY. . . . . . .  C ADDR   007CH   A   
+TGIAY1 . . . . . .  C ADDR   0089H   A   
+TGT. . . . . . . .  C ADDR   010EH   A   
+TG_CHAM. . . . . .    REG    R2          
+TG_CHUYEN_DAT. . .  N NUMB   0023H   A   
+THANG. . . . . . .    ----   -----       
+THT0 . . . . . . .  C ADDR   012BH   A   
+THT20. . . . . . .  C ADDR   013CH   A   
+TL . . . . . . . .  C ADDR   026EH   A   
+TNAM . . . . . . .  C ADDR   00C9H   A   
+TNGAY. . . . . . .  C ADDR   00ABH   A   
+TNGAY1 . . . . . .  C ADDR   00B8H   A   
+TP . . . . . . . .  C ADDR   008DH   A   
+TP1. . . . . . . .  C ADDR   009AH   A   
+TQPN . . . . . . .  C ADDR   0075H   A   
+TRELED . . . . . .  C ADDR   0268H   A   
+TT . . . . . . . .  C ADDR   00D3H   A   
+TTHANG . . . . . .  C ADDR   00BAH   A   
+TTHANG1. . . . . .  C ADDR   00C7H   A   
+TTT. . . . . . . .  C ADDR   00D8H   A   
+W1307. . . . . . .  N NUMB   00D0H   A   
+
+
+REGISTER BANK(S) USED: 0 
+
+
+ASSEMBLY COMPLETE.  0 WARNING(S), 18 ERROR(S)
